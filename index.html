@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Keitaro Audit — 38-Check Health Report</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- ── HERO ────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="wrap">
+    <p class="hero-tag">Keitaro Audit Tool</p>
+    <h1>38 checks. Four severity tiers.<br>One health score.</h1>
+    <p class="hero-sub">Select a scenario below to see the audit engine run against a simulated Keitaro instance. The same engine connects to a real tracker via the Admin API.</p>
+    <div class="scenario-bar" role="radiogroup" aria-label="Audit scenario">
+      <button class="scenario-btn active" data-scenario="HEALTHY">Healthy setup</button>
+      <button class="scenario-btn" data-scenario="PARTIAL">Partially configured</button>
+      <button class="scenario-btn" data-scenario="NEGLECTED">Neglected setup</button>
+      <button class="scenario-btn" data-scenario="EMPTY">Fresh install</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── SCORE ───────────────────────────────────────────────── -->
+<section class="score-section">
+  <div class="wrap score-grid">
+    <div class="score-ring-wrap">
+      <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--ring-bg)" stroke-width="10"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--ring-fg)" stroke-width="10"
+                stroke-dasharray="326.73" stroke-dashoffset="326.73" stroke-linecap="round"
+                class="score-arc" transform="rotate(-90 60 60)"/>
+      </svg>
+      <span class="score-number" aria-live="polite">—</span>
+      <span class="score-grade"></span>
+    </div>
+    <div class="score-summary">
+      <h2>Audit Score</h2>
+      <div class="stat-row">
+        <div class="stat"><span class="stat-n" id="st-pass">—</span><span class="stat-l">Pass</span></div>
+        <div class="stat"><span class="stat-n" id="st-warn">—</span><span class="stat-l">Warn</span></div>
+        <div class="stat"><span class="stat-n" id="st-fail">—</span><span class="stat-l">Fail</span></div>
+        <div class="stat"><span class="stat-n" id="st-skip">—</span><span class="stat-l">Skip</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── RESULTS TABLE ──────────────────────────────────────── -->
+<section class="results-section">
+  <div class="wrap">
+    <div class="filter-bar">
+      <button class="filt-btn active" data-filter="all">All</button>
+      <button class="filt-btn" data-filter="fail">Failures</button>
+      <button class="filt-btn" data-filter="warn">Warnings</button>
+      <button class="filt-btn" data-filter="pass">Passed</button>
+    </div>
+    <div id="results-list" class="results-list" role="list"></div>
+  </div>
+</section>
+
+<!-- ── CATEGORIES ──────────────────────────────────────────── -->
+<section class="cats-section">
+  <div class="wrap">
+    <h2>What the audit covers</h2>
+    <div class="cat-grid">
+      <div class="cat-card">
+        <span class="cat-icon">⚙</span>
+        <h3>Server &amp; Infrastructure</h3>
+        <p>Version, ClickHouse, disk, queue, cron, SSL — the foundation everything else rides on.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">🌐</span>
+        <h3>Domains</h3>
+        <p>SSL on every tracking domain, domain-to-campaign ratio, clean DNS records.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">📊</span>
+        <h3>Campaigns &amp; Flows</h3>
+        <p>Flows present, default catch-all, offer assignment, weight distribution, naming conventions.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">🔗</span>
+        <h3>Offers &amp; Postbacks</h3>
+        <p>HTTPS enforcement, S2S postbacks, click-ID macros, dead-offer detection, network diversity.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">🤖</span>
+        <h3>Bot Filtering</h3>
+        <p>Bot flow exists and is first, custom IP/signature lists, proxy detection, bot-traffic percentage.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">🎯</span>
+        <h3>Traffic Filters</h3>
+        <p>GEO, device, ISP, connection type, geo-database currency, uniqueness.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">📈</span>
+        <h3>Performance</h3>
+        <p>Conversion rate, ROI tracking, landing health, click limits, LP click tracking, timezone consistency.</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-icon">🛡</span>
+        <h3>Optimization Plan</h3>
+        <p>Priority-ranked fixes with estimated impact. Critical items first, quick wins highlighted.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTED ─────────────────────────────────────────────── -->
+<section class="tested-section">
+  <div class="wrap">
+    <h2>Measured</h2>
+    <table class="tested-table">
+      <thead><tr><th>What</th><th>Result</th></tr></thead>
+      <tbody id="tested-body"></tbody>
+    </table>
+    <h2 style="margin-top:2rem">Not measured</h2>
+    <ul class="not-measured">
+      <li>Against a live Keitaro instance — the engine connects via the Admin API; this demo uses fixtures.</li>
+      <li>Click-level data analysis (duplicates, click-to-conversion time anomalies) — requires live data export.</li>
+      <li>Landing-page load speed — needs headless browser; listed in the optimization plan as a manual check.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── SOURCES ─────────────────────────────────────────────── -->
+<section class="sources-section">
+  <div class="wrap">
+    <h2>Sources</h2>
+    <ul class="sources-list">
+      <li><a href="https://docs.keitaro.io/en/campaigns/filters.html">Keitaro docs: Filters</a></li>
+      <li><a href="https://docs.keitaro.io/en/development/admin-api.html">Keitaro docs: Admin API</a></li>
+      <li><a href="https://docs.keitaro.io/en/settings/bot-lists.html">Keitaro docs: Bot lists</a></li>
+      <li><a href="https://docs.keitaro.io/en/maintenance/status.html">Keitaro docs: Status page</a></li>
+      <li><a href="https://docs.keitaro.io/en/maintenance/troubleshooting.html">Keitaro docs: Troubleshooting</a></li>
+      <li><a href="https://blog.ishosting.com/en/keitaro-on-vps">ishosting: Keitaro on VPS — architecture and sizing</a></li>
+      <li><a href="https://adsafee.com/blog/en/click-fraud-protection-affiliate-trackers/">AdSafee: Click fraud protection in trackers</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer class="footer"><div class="wrap">Built for the Upwork application. Not affiliated with Keitaro.</div></footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
