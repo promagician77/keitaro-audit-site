@@ -1,0 +1,31 @@
+{
+  "built": "2026-11-13",
+  "sources": {
+    "origin_asn": {
+      "what": "BGP origin ASN per IP range (Route Views + RIPE RIS), ip-location-db origin-asn, PDDL",
+      "version": "5773e501e8ebc8abc49865b7ee6c64885ab1f4a0 2026-11-13"
+    },
+    "hosting_asns": {
+      "what": "X4BNet/lists_vpn datacenter ASN list (MIT)",
+      "count": 945,
+      "version": "d2b7e32466cc5e283c39ff86e315960b3fbbe6bd 2026-11-13"
+    },
+    "vpn_asns": {
+      "what": "X4BNet/lists_vpn VPN ASN list (MIT)",
+      "count": 27
+    },
+    "ranges": {
+      "what": "lord-alfred/ipranges mirrors of provider-published lists (CC0)",
+      "version": "a37724c7ccb60f0fece71cfcad6997b8386f48bf 2026-11-13"
+    },
+    "consumer_asns": {
+      "what": "Curated consumer ISP list used for tests and the sample log",
+      "count": 57
+    }
+  },
+  "counts": {
+    "v4rows": 478419,
+    "v6rows": 14115,
+    "metaAsns": 5746
+  }
+}

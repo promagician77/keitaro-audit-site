@@ -1,0 +1,566 @@
+{
+  "meta": {
+    "collectedAt": "2026-11-13T09:00:00Z",
+    "tool": "fixture",
+    "endpoints": {}
+  },
+  "score": {
+    "high": 7,
+    "medium": 15,
+    "low": 9,
+    "info": 4
+  },
+  "findings": [
+    {
+      "rule": "D01",
+      "severity": "high",
+      "area": "Domains",
+      "title": "Tracking domain without SSL",
+      "entity": {
+        "type": "domain",
+        "id": 2,
+        "name": "click.example-offers.net"
+      },
+      "detail": "No SSL certificate: links are served over plain HTTP, which many sources and browsers reject or warn about.",
+      "fix": "Point DNS to the tracker and let Keitaro issue the certificate (Maintenance → Logs → SSL shows errors).",
+      "where": "Domains → domain → SSL",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "F01",
+      "severity": "high",
+      "area": "Flows",
+      "title": "No bot flow in an active campaign",
+      "entity": {
+        "type": "campaign",
+        "id": 1,
+        "name": "US Nutra / Push A"
+      },
+      "detail": "4 active flows, none with the Bot filter. Bot clicks go through the same flows as people and reach offers.",
+      "fix": "Add a Forced flow at the top with the Bot filter set to IS. Send it to the same landing as people with no offer attached, and keep Collect clicks on so bot share stays measurable.",
+      "where": "Campaign → Flows → Create flow (type Forced) → Filters → Bot",
+      "source": "https://docs.keitaro.io/en/campaigns/filters.html"
+    },
+    {
+      "rule": "F02",
+      "severity": "high",
+      "area": "Flows",
+      "title": "Bot flow sends bots to offers",
+      "entity": {
+        "type": "flow",
+        "id": 31,
+        "name": "Global Apps / Social C → Bots"
+      },
+      "detail": "The bot flow has 1 offer attached (id 14).",
+      "fix": "Remove the offers from the bot flow. Bot clicks that reach an affiliate network are counted as real clicks there and lower your EPC and approval rate.",
+      "where": "Campaign → bot flow → Schema",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "F03",
+      "severity": "high",
+      "area": "Flows",
+      "title": "Bot flow is not Forced",
+      "entity": {
+        "type": "flow",
+        "id": 22,
+        "name": "DE Sweeps / Native B → Bots"
+      },
+      "detail": "The bot flow is a regular flow. Regular flow \"Main offer\" has no filters and sits above it, so it takes the bots first.",
+      "fix": "Change the bot flow type to Forced. Keitaro checks Forced flows before Regular ones, so bots are caught before any offer flow can take them.",
+      "where": "Campaign → bot flow → Type",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "F04",
+      "severity": "high",
+      "area": "Flows",
+      "title": "Flows that never receive traffic",
+      "entity": {
+        "type": "campaign",
+        "id": 2,
+        "name": "DE Sweeps / Native B"
+      },
+      "detail": "With split-testing off, Keitaro checks regular flows top to bottom. \"Main offer\" has no filters, so 2 flows below it get nothing: \"Bots\", \"Austria\".",
+      "fix": "Move the unfiltered regular flow to the bottom, give it filters, or turn it into the Default flow.",
+      "where": "Campaign → Flows (drag to reorder)",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "O01",
+      "severity": "high",
+      "area": "Conversions",
+      "title": "Offer URL without {subid}",
+      "entity": {
+        "type": "offer",
+        "id": 12,
+        "name": "Nutra B / direct link"
+      },
+      "detail": "The offer has no affiliate network and its URL doesn't pass {subid}, so the network can't send the click ID back and postbacks can't be matched.",
+      "fix": "Add the network's click parameter with {subid} (for example sub1={subid}) or attach the affiliate network template, which adds it for you.",
+      "where": "Offers → offer → URL / Affiliate network",
+      "source": "https://docs.keitaro.io/en/conversions-and-postback/adding-affiliate-networks.html"
+    },
+    {
+      "rule": "O02",
+      "severity": "high",
+      "area": "Conversions",
+      "title": "Affiliate network does not pass {subid}",
+      "entity": {
+        "type": "affiliate_network",
+        "id": 2,
+        "name": "Network Y"
+      },
+      "detail": "Offer parameters are \"aff_sub=\", with no {subid}. Every offer on this network sends clicks without the click ID.",
+      "fix": "Set Offer parameters to the network's click field with {subid}, for example sub1={subid}. Keitaro calls subid the mandatory postback parameter.",
+      "where": "Affiliate networks → network → Offer parameters",
+      "source": "https://docs.keitaro.io/en/conversions-and-postback/adding-affiliate-networks.html"
+    },
+    {
+      "rule": "B03",
+      "severity": "medium",
+      "area": "Bot list",
+      "title": "Bot list blocks consumer ISP addresses",
+      "entity": {
+        "type": "tracker",
+        "id": null,
+        "name": "Bot list"
+      },
+      "detail": "73.0.0.0/8 covers AS7922 Comcast Cable Communications, LLC",
+      "fix": "Replace broad entries with the specific data-center prefixes. Ranges this wide also catch real visitors.",
+      "where": "Settings → Bot lists",
+      "source": "https://docs.keitaro.io/en/settings/bot-lists.html"
+    },
+    {
+      "rule": "D02",
+      "severity": "medium",
+      "area": "Domains",
+      "title": "HTTPS-only is off",
+      "entity": {
+        "type": "domain",
+        "id": 3,
+        "name": "lp.example-offers.net"
+      },
+      "detail": "The certificate exists but http:// requests are not redirected to https://.",
+      "fix": "Turn on HTTPS-only so http:// links redirect to https://.",
+      "where": "Domains → domain → HTTPS-only",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "D03",
+      "severity": "medium",
+      "area": "Security",
+      "title": "Admin panel open on a tracking domain",
+      "entity": {
+        "type": "domain",
+        "id": 1,
+        "name": "go.example-brand.com"
+      },
+      "detail": "go.example-brand.com/admin opens the login page on a domain that appears in ad links.",
+      "fix": "Turn Admin Dashboard off on tracking domains and keep one separate admin domain (with an IP allowlist).",
+      "where": "Domains → domain → Admin Dashboard",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "D05",
+      "severity": "medium",
+      "area": "Domains",
+      "title": "Domain status is not OK",
+      "entity": {
+        "type": "domain",
+        "id": 4,
+        "name": "old.example-brand.com"
+      },
+      "detail": "Network status is \"awaiting_dns\".",
+      "fix": "Check that the domain has a single A record pointing to the tracker, then run the domain check again.",
+      "where": "Domains → domain → Check",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "D06",
+      "severity": "medium",
+      "area": "Domains",
+      "title": "Index page campaign is disabled or missing",
+      "entity": {
+        "type": "domain",
+        "id": 4,
+        "name": "old.example-brand.com"
+      },
+      "detail": "The bare domain opens campaign #6, which is disabled.",
+      "fix": "Pick an active campaign for the index page or clear the setting.",
+      "where": "Domains → domain → Index page",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "F05",
+      "severity": "medium",
+      "area": "Flows",
+      "title": "No Default flow",
+      "entity": {
+        "type": "campaign",
+        "id": 3,
+        "name": "Global Apps / Social C"
+      },
+      "detail": "No active Default flow. Unmatched clicks are dropped.",
+      "fix": "Add a Default flow. Without one, clicks that match no flow get the Do Nothing action and are lost.",
+      "where": "Campaign → Flows → Create flow (type Default)",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "F07",
+      "severity": "medium",
+      "area": "Filters",
+      "title": "OR logic with several IS NOT filters",
+      "entity": {
+        "type": "flow",
+        "id": 32,
+        "name": "Global Apps / Social C → Not US or not CA"
+      },
+      "detail": "OR is on with 2 IS NOT filters (country, country). A click passes if any one of them is true, which is almost every click.",
+      "fix": "Switch the flow to AND, or rewrite the conditions as IS. \"Country IS NOT US OR country IS NOT CA\" is true for every click.",
+      "where": "Flow → Filters → AND/OR",
+      "source": "https://docs.keitaro.io/en/campaigns/filters.html"
+    },
+    {
+      "rule": "F08",
+      "severity": "medium",
+      "area": "Filters",
+      "title": "Filter with no values",
+      "entity": {
+        "type": "flow",
+        "id": 33,
+        "name": "Global Apps / Social C → Tier 1"
+      },
+      "detail": "The \"country\" filter (IS) has an empty value list.",
+      "fix": "Fill in the filter values or delete the filter.",
+      "where": "Flow → Filters",
+      "source": "https://docs.keitaro.io/en/campaigns/filters.html"
+    },
+    {
+      "rule": "F10",
+      "severity": "medium",
+      "area": "Reporting",
+      "title": "Flow does not save clicks",
+      "entity": {
+        "type": "flow",
+        "id": 42,
+        "name": "BR Finance / Push A → Clean BR mobile"
+      },
+      "detail": "Collect clicks is off, so this flow's traffic is missing from statistics and cost/ROI reports.",
+      "fix": "Turn Collect clicks on, unless this flow is meant to be invisible in reports.",
+      "where": "Flow → Collect clicks",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "F14",
+      "severity": "medium",
+      "area": "Sources",
+      "title": "Campaign without a traffic source",
+      "entity": {
+        "type": "campaign",
+        "id": 2,
+        "name": "DE Sweeps / Native B"
+      },
+      "detail": "No traffic source is attached, so placements can't be filtered or reported per zone.",
+      "fix": "Attach the traffic source template so its parameters (zone, site, creative) land in sub IDs you can filter and report on.",
+      "where": "Campaign → Settings → Traffic source",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/creating-campaign.html"
+    },
+    {
+      "rule": "F15",
+      "severity": "medium",
+      "area": "Filters",
+      "title": "Filter not available on this tracker",
+      "entity": {
+        "type": "flow",
+        "id": 42,
+        "name": "BR Finance / Push A → Clean BR mobile"
+      },
+      "detail": "Filter \"fraud_score\" is used here but the tracker doesn't list it.",
+      "fix": "Re-install the custom filter file or remove the filter. Keitaro lists its filters at /admin_api/v1/stream_filters; this name is not there.",
+      "where": "Flow → Filters",
+      "source": "https://docs.keitaro.io/en/development/admin-api.html"
+    },
+    {
+      "rule": "F18",
+      "severity": "medium",
+      "area": "Offers",
+      "title": "Flow points to a disabled or missing offer",
+      "entity": {
+        "type": "flow",
+        "id": 43,
+        "name": "BR Finance / Push A → Default A"
+      },
+      "detail": "Offer #18 \"Finance BR v1\" is disabled.",
+      "fix": "Replace the offer in the flow or re-enable it, so the flow's share of clicks goes somewhere useful.",
+      "where": "Flow → Schema → Offers",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "O03",
+      "severity": "medium",
+      "area": "Conversions",
+      "title": "CPA offer records zero revenue",
+      "entity": {
+        "type": "offer",
+        "id": 14,
+        "name": "Apps install"
+      },
+      "detail": "Fixed payout 0 and payout from postback off: every conversion is recorded with $0 revenue.",
+      "fix": "Set a fixed payout, or switch Payout to \"from postback\" so the network's payout value is used.",
+      "where": "Offers → offer → Payout",
+      "source": "https://docs.keitaro.io/en/networks/offers.html"
+    },
+    {
+      "rule": "R01",
+      "severity": "medium",
+      "area": "Traffic quality",
+      "title": "Source with a high bot share",
+      "entity": {
+        "type": "traffic_source",
+        "id": null,
+        "name": "Push network A"
+      },
+      "detail": "26% of 182,400 clicks were marked as bots by Keitaro in 2026-11-06 – 2026-11-12.",
+      "fix": "Pull the click log for this source, find the placements behind the bots, block them at the source and ask for a refund.",
+      "where": "Reports → group by Traffic source → Bots, Bot share",
+      "source": "https://docs.keitaro.io/en/campaigns/filters.html"
+    },
+    {
+      "rule": "R02",
+      "severity": "medium",
+      "area": "Conversions",
+      "title": "Busy campaign with zero conversions",
+      "entity": {
+        "type": "campaign",
+        "id": null,
+        "name": "DE Sweeps / Native B"
+      },
+      "detail": "64,200 clicks and 0 conversions in 2026-11-06 – 2026-11-12.",
+      "fix": "Check Maintenance → Logs → Postbacks for this campaign's offers; zero conversions on this much traffic usually means postbacks aren't arriving or aren't matching.",
+      "where": "Maintenance → Logs → Postbacks",
+      "source": "https://docs.keitaro.io/en/conversions-and-postback/postback.html"
+    },
+    {
+      "rule": "B02",
+      "severity": "low",
+      "area": "Bot list",
+      "title": "Bot list has invalid, duplicate or private entries",
+      "entity": {
+        "type": "tracker",
+        "id": null,
+        "name": "Bot list"
+      },
+      "detail": "\"10.0.0.0/8\" is a private range and never appears in public traffic; \"203.0.113.7\" is listed twice; \"not-an-ip\" is not an IP or CIDR",
+      "fix": "Remove these lines; they do nothing or hide real mistakes.",
+      "where": "Settings → Bot lists → Remove",
+      "source": "https://docs.keitaro.io/en/settings/bot-lists.html"
+    },
+    {
+      "rule": "D04",
+      "severity": "low",
+      "area": "Domains",
+      "title": "Search crawlers allowed on a tracking domain",
+      "entity": {
+        "type": "domain",
+        "id": 3,
+        "name": "lp.example-offers.net"
+      },
+      "detail": "robots.txt allows crawling, so tracking links can end up in search results.",
+      "fix": "Set Crawlers to Disallowed so robots.txt blocks indexing of tracking URLs.",
+      "where": "Domains → domain → Crawlers",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "D07",
+      "severity": "low",
+      "area": "Domains",
+      "title": "Intercept 404 has no effect",
+      "entity": {
+        "type": "domain",
+        "id": 5,
+        "name": "promo.example-brand.com"
+      },
+      "detail": "Intercept 404 is on but no index page campaign is set.",
+      "fix": "Intercept 404 only works with an index page campaign. Set one or turn the option off.",
+      "where": "Domains → domain → Intercept 404",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "F06",
+      "severity": "low",
+      "area": "Flows",
+      "title": "More than one Default flow",
+      "entity": {
+        "type": "campaign",
+        "id": 4,
+        "name": "BR Finance / Push A"
+      },
+      "detail": "2 active Default flows: \"Default A\", \"Default B\".",
+      "fix": "Keep one Default flow and archive the rest so it is clear where fallback traffic goes.",
+      "where": "Campaign → Flows",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "F11",
+      "severity": "low",
+      "area": "Split tests",
+      "title": "Split test without visitor binding",
+      "entity": {
+        "type": "campaign",
+        "id": 1,
+        "name": "US Nutra / Push A"
+      },
+      "detail": "Flow rotation is By weight and Bind visitors is off. Returning visitors are re-split, which blurs the test.",
+      "fix": "Turn on Bind visitors so a returning visitor sees the same flow, landing and offer during the test.",
+      "where": "Campaign → Settings → Bind visitors",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/creating-campaign.html"
+    },
+    {
+      "rule": "F12",
+      "severity": "low",
+      "area": "Split tests",
+      "title": "Active flow with weight 0",
+      "entity": {
+        "type": "flow",
+        "id": 13,
+        "name": "US Nutra / Push A → Offer C (paused by weight)"
+      },
+      "detail": "Weight is 0: only visitors already bound to it still reach it; new clicks do not.",
+      "fix": "Pause the flow if it should get nothing; otherwise give it a weight.",
+      "where": "Campaign → Flows → Weight",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/streams.html"
+    },
+    {
+      "rule": "F13",
+      "severity": "low",
+      "area": "Reporting",
+      "title": "Campaign has no cost set",
+      "entity": {
+        "type": "campaign",
+        "id": 1,
+        "name": "US Nutra / Push A"
+      },
+      "detail": "Cost type CPC with value 0 and no automatic costs. ROI reports treat this traffic as free unless costs are uploaded.",
+      "fix": "Set the cost model, turn on automatic costs from the source, or upload costs with Update costs, so ROI and profit are real.",
+      "where": "Campaign → Settings → Cost",
+      "source": "https://docs.keitaro.io/en/campaigns-and-streams/creating-campaign.html"
+    },
+    {
+      "rule": "O04",
+      "severity": "low",
+      "area": "Offers",
+      "title": "Offer URL uses http://",
+      "entity": {
+        "type": "offer",
+        "id": 15,
+        "name": "Finance BR"
+      },
+      "detail": "Plain-HTTP offer link: some browsers warn on the redirect and the referrer can leak.",
+      "fix": "Use the https:// version of the link if the network supports it.",
+      "where": "Offers → offer → URL",
+      "source": "https://docs.keitaro.io/en/networks/offers.html"
+    },
+    {
+      "rule": "O06",
+      "severity": "low",
+      "area": "Housekeeping",
+      "title": "Duplicate offers",
+      "entity": {
+        "type": "offers",
+        "id": "11,17",
+        "name": "Nutra A / Network X / Nutra A copy"
+      },
+      "detail": "2 offers share the same URL.",
+      "fix": "Merge duplicates so conversions and payouts aren't split across two records.",
+      "where": "Offers",
+      "source": "https://docs.keitaro.io/en/networks/offers.html"
+    },
+    {
+      "rule": "D08",
+      "severity": "info",
+      "area": "Housekeeping",
+      "title": "Parked domain with no campaigns",
+      "entity": {
+        "type": "domains",
+        "id": null,
+        "name": "1 idle domain"
+      },
+      "detail": "promo.example-brand.com",
+      "fix": "Keep spare domains, but check their status before the day you need them.",
+      "where": "Domains",
+      "source": "https://docs.keitaro.io/en/maintenance/domains.html"
+    },
+    {
+      "rule": "F16",
+      "severity": "info",
+      "area": "Filters",
+      "title": "Proxy filter depends on the PX2 database",
+      "entity": {
+        "type": "tracker",
+        "id": null,
+        "name": "Geo databases"
+      },
+      "detail": "The Proxy filter is used in 1 flow: BR Finance / Push A → Clean BR mobile.",
+      "fix": "Check Maintenance → Geo DBs for IP2Location PX2. Without it the Proxy filter only sees proxies that announce themselves in HTTP headers.",
+      "where": "Maintenance → Geo DBs",
+      "source": "https://docs.keitaro.io/en/campaigns/filters.html"
+    },
+    {
+      "rule": "F17",
+      "severity": "info",
+      "area": "Filters",
+      "title": "ISP / connection filters depend on the geo database",
+      "entity": {
+        "type": "tracker",
+        "id": null,
+        "name": "Geo databases"
+      },
+      "detail": "ISP or connection-type filters are used in 1 flow.",
+      "fix": "Confirm Keitaro Geo or IP2Location DB4 is active; the ISP filter needs one of them.",
+      "where": "Maintenance → Geo DBs",
+      "source": "https://docs.keitaro.io/en/settings/geo-databases.html"
+    },
+    {
+      "rule": "O05",
+      "severity": "info",
+      "area": "Housekeeping",
+      "title": "Active offers not used in any flow",
+      "entity": {
+        "type": "offers",
+        "id": null,
+        "name": "2 unused offers"
+      },
+      "detail": "#16 Old nutra (unused); #17 Nutra A copy",
+      "fix": "Archive offers you no longer run, so reports and flow editors stay readable.",
+      "where": "Offers",
+      "source": "https://docs.keitaro.io/en/networks/offers.html"
+    }
+  ],
+  "manual": [
+    [
+      "Geo databases",
+      "Maintenance → Geo DBs: which database answers ISP lookups (Keitaro Geo or IP2Location DB4), and is IP2Location PX2 loaded for the Proxy filter?"
+    ],
+    [
+      "Bot list switches",
+      "Settings → Bot lists: additional User-Agent list, Bot IP list, empty user agent as bot, Spambot list, and skipping bot traffic in cost updates."
+    ],
+    [
+      "Real visitor IP",
+      "If tracking domains sit behind Cloudflare or another proxy, check the click log for proxy addresses. The log analyzer reports the share of clicks from Cloudflare edge IPs."
+    ],
+    [
+      "Server health",
+      "Maintenance → Status: CPU stolen, disk space, and any ClickHouse upgrade notice. kctl repair fixes common server issues."
+    ],
+    [
+      "Postback log",
+      "Maintenance → Logs → Postbacks: \"Incorrect subid\" and \"Click for subid not found\" errors point at the network or offer that isn't passing {subid}."
+    ],
+    [
+      "Admin access",
+      "Admin panel on one domain only, admin IP allowlist set, one API key per person or tool with the narrowest role."
+    ]
+  ]
+}

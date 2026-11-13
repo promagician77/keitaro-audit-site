@@ -1,149 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<title>Keitaro Audit — 38-Check Health Report</title>
-<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Keitaro audit kit: flows, filters and the bots that get through</title>
+<meta name="description" content="Read-only Keitaro audit and a click-log analyzer that runs in the browser.">
+<link rel="preload" href="fonts/red-hat-display-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='2' width='14' height='3' fill='%231E5E4E'/%3E%3Crect x='1' y='7' width='9' height='3' fill='%232F6690'/%3E%3Crect x='11' y='7' width='4' height='3' fill='%23C8381E'/%3E%3Crect x='1' y='12' width='14' height='3' fill='%232F6690'/%3E%3C/svg%3E">
 </head>
 <body>
-<!-- ── HERO ────────────────────────────────────────────────── -->
-<header class="hero">
-  <div class="wrap">
-    <p class="hero-tag">Keitaro Audit Tool</p>
-    <h1>38 checks. Four severity tiers.<br>One health score.</h1>
-    <p class="hero-sub">Select a scenario below to see the audit engine run against a simulated Keitaro instance. The same engine connects to a real tracker via the Admin API.</p>
-    <div class="scenario-bar" role="radiogroup" aria-label="Audit scenario">
-      <button class="scenario-btn active" data-scenario="HEALTHY">Healthy setup</button>
-      <button class="scenario-btn" data-scenario="PARTIAL">Partially configured</button>
-      <button class="scenario-btn" data-scenario="NEGLECTED">Neglected setup</button>
-      <button class="scenario-btn" data-scenario="EMPTY">Fresh install</button>
-    </div>
+<a class="skip" href="#analyzer">Skip to the analyzer</a>
+<header class="top">
+  <div class="wrap top-in">
+    <p class="mark"><span class="mark-bars" aria-hidden="true"><i></i><i></i><i></i></span>Keitaro audit kit</p>
+    <nav aria-label="Sections">
+      <a href="#analyzer">Analyzer</a>
+      <a href="#audit">Audit</a>
+      <a href="#measured">Measured</a>
+      <a href="#playbook">Playbook</a>
+    </nav>
   </div>
 </header>
 
-<!-- ── SCORE ───────────────────────────────────────────────── -->
-<section class="score-section">
-  <div class="wrap score-grid">
-    <div class="score-ring-wrap">
-      <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--ring-bg)" stroke-width="10"/>
-        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--ring-fg)" stroke-width="10"
-                stroke-dasharray="326.73" stroke-dashoffset="326.73" stroke-linecap="round"
-                class="score-arc" transform="rotate(-90 60 60)"/>
-      </svg>
-      <span class="score-number" aria-live="polite">—</span>
-      <span class="score-grade"></span>
+<main>
+<section class="hero wrap" aria-labelledby="hero-h">
+  <div class="hero-copy">
+    <h1 id="hero-h">See which bots get past your Keitaro flows, and why.</h1>
+    <p class="lede">Two tools for a Keitaro audit. A read-only check of campaigns, flows, offers, networks and domains. And a click-log analyzer that sorts every click into people, suspicious and bots, then writes the values to paste back into Keitaro.</p>
+    <div class="actions">
+      <label class="btn primary" for="file-input">Open your click export</label>
+      <input id="file-input" type="file" accept=".csv,.tsv,.txt,text/csv" class="visually-hidden">
+      <button class="btn" id="run-sample" type="button">Re-run the sample log</button>
     </div>
-    <div class="score-summary">
-      <h2>Audit Score</h2>
-      <div class="stat-row">
-        <div class="stat"><span class="stat-n" id="st-pass">—</span><span class="stat-l">Pass</span></div>
-        <div class="stat"><span class="stat-n" id="st-warn">—</span><span class="stat-l">Warn</span></div>
-        <div class="stat"><span class="stat-n" id="st-fail">—</span><span class="stat-l">Fail</span></div>
-        <div class="stat"><span class="stat-n" id="st-skip">—</span><span class="stat-l">Skip</span></div>
+    <p class="privacy">Your export is read by this tab only. Nothing is uploaded. CSV from Reports → Clicks works; it needs IP and user agent columns at least.</p>
+  </div>
+
+  <figure class="flowstack" id="flowstack" aria-describedby="fs-cap">
+    <div class="fs-head">
+      <p class="fs-title" id="fs-title">Sample log, in Keitaro's flow order</p>
+      <p class="fs-scale" id="fs-scale">1 square = 10 clicks</p>
+    </div>
+    <ol class="lanes" id="lanes"></ol>
+    <ul class="legend" aria-label="Legend">
+      <li><i class="sw human"></i>People</li>
+      <li><i class="sw suspicious"></i>Suspicious</li>
+      <li><i class="sw bot"></i>Bots</li>
+    </ul>
+    <figcaption id="fs-cap">Loading the sample…</figcaption>
+  </figure>
+</section>
+
+<section id="analyzer" class="band" aria-labelledby="an-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="an-h">Click-log analyzer</h2>
+      <p class="status" id="status" role="status" aria-live="polite">Preparing network data…</p>
+    </div>
+
+    <form id="mapping" class="mapping" hidden>
+      <p>Some columns weren't recognised. Pick which column holds each field, then run the analysis.</p>
+      <div class="map-grid" id="map-grid"></div>
+      <button class="btn primary" type="submit">Analyze with these columns</button>
+    </form>
+
+    <div id="results" hidden>
+      <dl class="kpis" id="kpis"></dl>
+      <p class="note" id="kpi-note"></p>
+
+      <div class="cols">
+        <div>
+          <h3>Why clicks were flagged</h3>
+          <div id="reasons" class="reasons"></div>
+        </div>
+        <div>
+          <h3>Clicks per hour</h3>
+          <div id="hourly" class="hourly"></div>
+          <h3 class="mt">Networks with the most bots</h3>
+          <ol id="networks" class="netlist"></ol>
+        </div>
       </div>
+
+      <h3>Traffic sources</h3>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Traffic sources table"><table class="data" id="sources"></table></div>
+
+      <h3>Placements to block at the source</h3>
+      <p class="hint">Zones or sites with at least 20 clicks and a bot share of 30% or more. Block them in the traffic source and use the click list below as evidence for a refund.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Placements table"><table class="data" id="placements"></table></div>
+
+      <h3 id="out-h">Paste into Keitaro</h3>
+      <div class="tabs" id="out-tabs" role="tablist" aria-labelledby="out-h"></div>
+      <div class="out-panel" id="out-panel" role="tabpanel"></div>
+
+      <h3>Flagged clicks</h3>
+      <div class="inspect-bar">
+        <label for="reason-filter">Show</label>
+        <select id="reason-filter"></select>
+        <span class="hint" id="inspect-count"></span>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Flagged clicks table"><table class="data clicks" id="clicks"></table></div>
     </div>
   </div>
 </section>
 
-<!-- ── RESULTS TABLE ──────────────────────────────────────── -->
-<section class="results-section">
-  <div class="wrap">
-    <div class="filter-bar">
-      <button class="filt-btn active" data-filter="all">All</button>
-      <button class="filt-btn" data-filter="fail">Failures</button>
-      <button class="filt-btn" data-filter="warn">Warnings</button>
-      <button class="filt-btn" data-filter="pass">Passed</button>
+<section id="audit" class="wrap" aria-labelledby="au-h">
+  <div class="sec-head">
+    <h2 id="au-h">Read-only tracker audit</h2>
+    <p class="sub">A Node script reads the tracker through the Admin API and checks it against 37 rules taken from Keitaro's documentation. It sends GET requests only. Report queries are opt-in. Below is its output on a sample tracker with planted problems and one clean campaign.</p>
+  </div>
+
+  <div class="routing" aria-labelledby="rt-h">
+    <h3 id="rt-h">How Keitaro picks a flow, and where that goes wrong</h3>
+    <ol class="steps">
+      <li><b>Forced flows</b> are checked first, top to bottom. The bot flow belongs here.</li>
+      <li><b>Regular flows</b> come next. With split-testing off they're checked top to bottom; with it on, at random by weight.</li>
+      <li><b>The Default flow</b> takes whatever is left. With no Default flow, the click gets Do Nothing.</li>
+    </ol>
+    <div class="trace" aria-label="Example from the sample tracker">
+      <p class="trace-title">Sample tracker, campaign “DE Sweeps”</p>
+      <ul class="trace-rows">
+        <li class="t-reg t-catch"><span class="t-type">Regular</span><span class="t-name">Main offer</span><span class="t-flt">no filters</span><span class="t-note">takes every click, bots included</span></li>
+        <li class="t-reg t-dead"><span class="t-type">Regular</span><span class="t-name">Bots</span><span class="t-flt">Bot IS</span><span class="t-note">never reached</span></li>
+        <li class="t-reg t-dead"><span class="t-type">Regular</span><span class="t-name">Austria</span><span class="t-flt">Country IS AT</span><span class="t-note">never reached</span></li>
+        <li class="t-def"><span class="t-type">Default</span><span class="t-name">Default</span><span class="t-flt"></span><span class="t-note"></span></li>
+      </ul>
+      <p class="trace-fix">Fix: make “Bots” a Forced flow and give “Main offer” its filters, or move it down. Findings F03 and F04 below.</p>
     </div>
-    <div id="results-list" class="results-list" role="list"></div>
+  </div>
+
+  <div class="audit-bar">
+    <p id="audit-score" class="audit-score"></p>
+    <div class="chips" id="sev-chips" role="group" aria-label="Filter findings by severity"></div>
+  </div>
+  <div id="findings" class="findings"></div>
+
+  <div class="runbox">
+    <h3>Run it on your tracker</h3>
+    <p>Two ways, both read-only. The key comes from Maintenance → Users → Admin API keys and stays in your shell.</p>
+    <p class="cmd-label">Make a redacted snapshot and send me the JSON (tokens, postback keys and URL values removed):</p>
+    <pre tabindex="0" aria-label="Snapshot command"><code>KEITARO_API_KEY=your_key node audit/keitaro-audit.mjs --url https://your-tracker --snapshot-only --out audit-out</code></pre>
+    <p class="cmd-label">Or run the full audit yourself; add <code>--with-reports</code> for 7 days of bot share per source:</p>
+    <pre tabindex="0" aria-label="Full audit command"><code>KEITARO_API_KEY=your_key node audit/keitaro-audit.mjs --url https://your-tracker --out audit-out</code></pre>
+    <p><a class="btn" href="downloads/keitaro-audit-kit.zip" download>Download the kit (Node 20+, no dependencies)</a></p>
   </div>
 </section>
 
-<!-- ── CATEGORIES ──────────────────────────────────────────── -->
-<section class="cats-section">
+<section id="measured" class="band" aria-labelledby="me-h">
   <div class="wrap">
-    <h2>What the audit covers</h2>
-    <div class="cat-grid">
-      <div class="cat-card">
-        <span class="cat-icon">⚙</span>
-        <h3>Server &amp; Infrastructure</h3>
-        <p>Version, ClickHouse, disk, queue, cron, SSL — the foundation everything else rides on.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">🌐</span>
-        <h3>Domains</h3>
-        <p>SSL on every tracking domain, domain-to-campaign ratio, clean DNS records.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">📊</span>
-        <h3>Campaigns &amp; Flows</h3>
-        <p>Flows present, default catch-all, offer assignment, weight distribution, naming conventions.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">🔗</span>
-        <h3>Offers &amp; Postbacks</h3>
-        <p>HTTPS enforcement, S2S postbacks, click-ID macros, dead-offer detection, network diversity.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">🤖</span>
-        <h3>Bot Filtering</h3>
-        <p>Bot flow exists and is first, custom IP/signature lists, proxy detection, bot-traffic percentage.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">🎯</span>
-        <h3>Traffic Filters</h3>
-        <p>GEO, device, ISP, connection type, geo-database currency, uniqueness.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">📈</span>
-        <h3>Performance</h3>
-        <p>Conversion rate, ROI tracking, landing health, click limits, LP click tracking, timezone consistency.</p>
-      </div>
-      <div class="cat-card">
-        <span class="cat-icon">🛡</span>
-        <h3>Optimization Plan</h3>
-        <p>Priority-ranked fixes with estimated impact. Critical items first, quick wins highlighted.</p>
-      </div>
+    <div class="sec-head">
+      <h2 id="me-h">Measured</h2>
+      <p class="sub">Every number below comes from a script in the kit, run on public datasets or on the fixtures described. Rules were tuned on a development half and scored on the held-out half.</p>
     </div>
-  </div>
-</section>
-
-<!-- ── TESTED ─────────────────────────────────────────────── -->
-<section class="tested-section">
-  <div class="wrap">
-    <h2>Measured</h2>
-    <table class="tested-table">
-      <thead><tr><th>What</th><th>Result</th></tr></thead>
-      <tbody id="tested-body"></tbody>
-    </table>
-    <h2 style="margin-top:2rem">Not measured</h2>
-    <ul class="not-measured">
-      <li>Against a live Keitaro instance — the engine connects via the Admin API; this demo uses fixtures.</li>
-      <li>Click-level data analysis (duplicates, click-to-conversion time anomalies) — requires live data export.</li>
-      <li>Landing-page load speed — needs headless browser; listed in the optimization plan as a manual check.</li>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Measured results table"><table class="measured" id="measured-table"><thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Data</th></tr></thead><tbody></tbody></table></div>
+    <h3>Not measured</h3>
+    <ul class="notmeasured">
+      <li>No live Keitaro install. Field names come from Keitaro's Admin API reference and two public clients; an endpoint the key can't read is reported, not fatal.</li>
+      <li>No real campaign traffic. The sample log is synthetic: real user agents and real network ranges in a mix I chose.</li>
+      <li>The sample's “Is bot” column is simulated. It marks named crawlers and empty user agents only; Keitaro's own verdicts on your log will differ.</li>
+      <li>Residential-proxy bots and bots that run real browsers on home connections. A click log can't separate them; conversion quality per placement can.</li>
+      <li>ISP names come from BGP data and may be spelled differently in Keitaro's geo database.</li>
+      <li>Browsers: tested in Chromium only. Safari and Firefox not tested.</li>
     </ul>
   </div>
 </section>
 
-<!-- ── SOURCES ─────────────────────────────────────────────── -->
-<section class="sources-section">
-  <div class="wrap">
-    <h2>Sources</h2>
-    <ul class="sources-list">
-      <li><a href="https://docs.keitaro.io/en/campaigns/filters.html">Keitaro docs: Filters</a></li>
-      <li><a href="https://docs.keitaro.io/en/development/admin-api.html">Keitaro docs: Admin API</a></li>
-      <li><a href="https://docs.keitaro.io/en/settings/bot-lists.html">Keitaro docs: Bot lists</a></li>
-      <li><a href="https://docs.keitaro.io/en/maintenance/status.html">Keitaro docs: Status page</a></li>
-      <li><a href="https://docs.keitaro.io/en/maintenance/troubleshooting.html">Keitaro docs: Troubleshooting</a></li>
-      <li><a href="https://blog.ishosting.com/en/keitaro-on-vps">ishosting: Keitaro on VPS — architecture and sizing</a></li>
-      <li><a href="https://adsafee.com/blog/en/click-fraud-protection-affiliate-trackers/">AdSafee: Click fraud protection in trackers</a></li>
-    </ul>
+<section id="playbook" class="wrap" aria-labelledby="pb-h">
+  <div class="sec-head">
+    <h2 id="pb-h">Filtering playbook</h2>
+    <p class="sub">What I set up after the audit, in this order.</p>
   </div>
+  <ol class="playbook">
+    <li><h3>One Forced bot flow on top</h3><p>Bot filter IS, the same landing page people get, no offer attached, Collect clicks on. Ad reviewers see the page people see; bot clicks just never reach the network, and bot share stays measurable per source.</p></li>
+    <li><h3>Feed the Bot filter your own data</h3><p>Paste the analyzer's data-center prefixes into Settings → Bot lists, where the Bot filter reads them, and turn on the built-in lists and “empty user agent as bot”.</p></li>
+    <li><h3>Check what the Proxy and ISP filters can see</h3><p>The Proxy filter reads headers unless IP2Location PX2 is loaded. The ISP filter needs Keitaro Geo or DB4. Without them both filters can show as on while matching nothing.</p></li>
+    <li><h3>Regular flows with filters, one Default</h3><p>No unfiltered regular flow above others, no OR across IS NOT conditions, and one Default flow so nothing falls into Do Nothing.</p></li>
+    <li><h3>Block placements at the source</h3><p>Zones with a high bot share go on the source's blacklist, with the click list (subid, IP, user agent, reason) as refund evidence.</p></li>
+    <li><h3>Re-run weekly</h3><p>Export clicks, run the analyzer, compare bot share by source. New data-center ranges go into the bot list; flood IPs expire after a week.</p></li>
+  </ol>
 </section>
+</main>
 
-<footer class="footer"><div class="wrap">Built for the Upwork application. Not affiliated with Keitaro.</div></footer>
+<footer class="foot">
+  <div class="wrap">
+    <h2 class="foot-h">Sources</h2>
+    <ul class="sources">
+      <li><a href="https://docs.keitaro.io/en/campaigns-and-streams/streams.html">Keitaro: Flows</a> and <a href="https://docs.keitaro.io/en/campaigns/filters.html">Filters</a></li>
+      <li><a href="https://docs.keitaro.io/en/settings/bot-lists.html">Keitaro: Bot lists</a> and <a href="https://docs.keitaro.io/en/settings/geo-databases.html">Geo databases</a></li>
+      <li><a href="https://docs.keitaro.io/en/development/admin-api.html">Keitaro: Admin API</a> and <a href="https://docs.keitaro.io/en/maintenance/domains.html">Domains</a></li>
+      <li><a href="https://docs.keitaro.io/en/conversions-and-postback/adding-affiliate-networks.html">Keitaro: Affiliate networks and postbacks</a></li>
+      <li><a href="https://www.mediaratingcouncil.org/sites/default/files/News/2024_IVT_Interim_Updates_FINAL.pdf">MRC invalid traffic guidelines (GIVT categories)</a></li>
+      <li>Data: <a href="https://github.com/sapics/ip-location-db">ip-location-db origin-asn</a> (BGP, PDDL), <a href="https://github.com/X4BNet/lists_vpn">X4BNet data-center ASNs</a> (MIT), <a href="https://github.com/lord-alfred/ipranges">provider-published ranges</a> (CC0), <a href="https://github.com/monperrus/crawler-user-agents">crawler-user-agents</a> (MIT), <a href="https://github.com/intoli/user-agents">user-agents</a> (BSD-2), <a href="https://github.com/omrilotan/isbot">isbot</a> (Unlicense)</li>
+    </ul>
+    <p class="small" id="data-date"></p>
+  </div>
+</footer>
 
 <script type="module" src="js/app.js"></script>
 </body>

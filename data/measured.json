@@ -1,0 +1,367 @@
+{
+  "generated": "2026-11-13",
+  "ua": {
+    "heldOutCrawlers": 1025,
+    "ownRules": 0.9678,
+    "withIsbot": 0.998,
+    "humanStrings": 4154,
+    "humanFlagged": 8,
+    "humanRate": 0.0019,
+    "weightedMedian": 0,
+    "weightedMax": 0.00512,
+    "snapshots": 49,
+    "excluded": 23
+  },
+  "net": {
+    "cloudShare": 0.9781,
+    "cloudSampled": 14000,
+    "perProvider": {
+      "AWS": 0.9785,
+      "Google Cloud": 0.953,
+      "Microsoft Azure": 0.917,
+      "Oracle Cloud": 1,
+      "DigitalOcean": 1,
+      "Linode/Akamai": 0.999,
+      "Vultr": 0.9995
+    },
+    "relayOnHosting": 0.8207,
+    "relayFlagged": 0
+  },
+  "e2e": {
+    "seeds": [
+      202,
+      303
+    ],
+    "recall": 1,
+    "humanBot": 0,
+    "humanSuspicious": 0.03663149512243679,
+    "resiProxy": 0,
+    "clicks": [
+      6442,
+      6429
+    ],
+    "nodeMs": [
+      176,
+      181,
+      158
+    ]
+  },
+  "audit": {
+    "rules": 37,
+    "planted": 35,
+    "checks": "10/10",
+    "details": [
+      {
+        "name": "exact planted findings",
+        "pass": true,
+        "detail": "35/35, no extras, clean campaign silent"
+      },
+      {
+        "name": "only read requests sent",
+        "pass": true,
+        "detail": "16 requests: 14 GET, 2 POST report/build"
+      },
+      {
+        "name": "GET-only by default",
+        "pass": true,
+        "detail": "14 GET requests"
+      },
+      {
+        "name": "writes blocked in the client",
+        "pass": true,
+        "detail": "PUT/DELETE have no method; POST blocked except opted-in report/build"
+      },
+      {
+        "name": "wrong key message",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "missing endpoint handled",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "redaction",
+        "pass": true,
+        "detail": "tokens, postback keys and query values removed; findings identical"
+      },
+      {
+        "name": "one-at-a-time fixes",
+        "pass": true,
+        "detail": "35/35 planted problems: fixing each removes only its finding"
+      },
+      {
+        "name": "F09, B01 and Bot IS NOT cases",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "CLI offline run",
+        "pass": true,
+        "detail": "35 findings written to findings.json, audit.md, audit.html"
+      }
+    ]
+  },
+  "engine": {
+    "checks": "10/10",
+    "details": [
+      {
+        "name": "IP parsing",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "CIDR conversion",
+        "pass": true,
+        "detail": "300 random IPv4 ranges round-trip exactly"
+      },
+      {
+        "name": "CSV parsing",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "column mapping",
+        "pass": true,
+        "detail": "English, Russian and API names; three time formats"
+      },
+      {
+        "name": "UA classes",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "network lookups",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "per-click verdicts",
+        "pass": true,
+        "detail": "real vs fake Googlebot, data center, Private Relay kept human, CDN edge, private IP"
+      },
+      {
+        "name": "behaviour thresholds",
+        "pass": true,
+        "detail": "each rule fires at its threshold and not one step below"
+      },
+      {
+        "name": "Keitaro outputs",
+        "pass": true,
+        "detail": "IP filter split into 2 chunks of ≤ 65,534 chars; sample UA filter matches 0 of 8,362 real browser strings"
+      },
+      {
+        "name": "sample end to end",
+        "pass": true,
+        "detail": "6455 clicks; 1097 bots; 0 of 5037 human clicks marked bot"
+      }
+    ]
+  },
+  "mutations": {
+    "ablation": "37/37",
+    "planted": "15/15",
+    "list": [
+      "repeat-click threshold off by one",
+      "Private Relay exception removed",
+      "real/fake crawler check inverted",
+      "subnet farm ignores IP count",
+      "metronome accepts irregular gaps",
+      "outdated-browser window too tight",
+      "Googlebot loses its IP-list link",
+      "UA filter fragments lose their ^ anchor",
+      "browser guard on the UA filter removed",
+      "bare \"bot\" allowed into the UA filter",
+      "IP filter chunks exceed Keitaro limit",
+      "CSV doubled quotes mishandled",
+      "read-only guard lets POST through",
+      "campaign token not redacted",
+      "IS NOT bot treated as a bot flow"
+    ]
+  },
+  "browser": {
+    "passed": 25,
+    "total": 25,
+    "browser": "Chromium (playwright-core)",
+    "loadToResultMs": 819,
+    "browserAnalyzeMs": 167,
+    "bigFile": {
+      "clicks": 51640,
+      "ms": 758
+    },
+    "checks": [
+      {
+        "name": "sample analyzed on load",
+        "pass": true,
+        "detail": "819 ms from navigation to results; analysis 167 ms in the tab"
+      },
+      {
+        "name": "browser numbers equal Node numbers",
+        "pass": true,
+        "detail": "clicks 6455/6455, bots 1097/1097, suspicious 317/317, people 5041/5041"
+      },
+      {
+        "name": "missed-by-tracker count shown",
+        "pass": true,
+        "detail": "929 vs 929"
+      },
+      {
+        "name": "analysis runs in a Web Worker",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "flow stack lanes in Keitaro order",
+        "pass": true,
+        "detail": "Forced:Bots(17) | Regular:Offer EU(294) | Regular:Offer US/CA(267) | Default:Default offer(67)"
+      },
+      {
+        "name": "all output tabs render",
+        "pass": true,
+        "detail": "Bot list=10917, IP filter=10917, User-agent filter=496, Flood IPs=155, ISP names=456"
+      },
+      {
+        "name": "UA filter is a PCRE between slashes",
+        "pass": true,
+        "detail": "/(?i)(?:Googlebot|HeadlessChrome|bingbot|meta-externalagent|Apache-HttpClient|fa…"
+      },
+      {
+        "name": "copy button copies the bot list",
+        "pass": true,
+        "detail": "707 lines"
+      },
+      {
+        "name": "tabs move with arrow keys",
+        "pass": true,
+        "detail": "IP filter"
+      },
+      {
+        "name": "flagged-click filter works",
+        "pass": true,
+        "detail": "150 → 30 rows"
+      },
+      {
+        "name": "sample audit findings rendered",
+        "pass": true,
+        "detail": "35"
+      },
+      {
+        "name": "severity filter",
+        "pass": true,
+        "detail": "7 high"
+      },
+      {
+        "name": "measured table filled",
+        "pass": true,
+        "detail": "9 rows"
+      },
+      {
+        "name": "kit download reachable",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "axe-core WCAG 2.1 AA: desktop after analysis",
+        "pass": true,
+        "detail": "0 violations"
+      },
+      {
+        "name": "Russian semicolon export analyzed",
+        "pass": true,
+        "detail": "clicks 3, bots 3"
+      },
+      {
+        "name": "user agents rendered as text (no injection)",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "column mapping form",
+        "pass": true,
+        "detail": "clicks 2, bots 1"
+      },
+      {
+        "name": "52k-click file",
+        "pass": true,
+        "detail": "51,640 clicks analyzed in 758 ms (1480 ms including file read)"
+      },
+      {
+        "name": "no console errors",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no horizontal overflow at 390 px",
+        "pass": true,
+        "detail": "0px"
+      },
+      {
+        "name": "touch targets at least 40 px tall",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "axe-core WCAG 2.1 AA: mobile",
+        "pass": true,
+        "detail": "0 violations"
+      },
+      {
+        "name": "no errors on mobile",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "reduced motion respected",
+        "pass": true,
+        "detail": ""
+      }
+    ]
+  },
+  "lines": [
+    [
+      "Unseen crawlers caught",
+      "96.8% with my rules, 99.8% with the isbot list as a fallback",
+      "1,025 user agents from the held-out half of crawler-user-agents"
+    ],
+    [
+      "Real browser user agents flagged as bots",
+      "0.19% of 4,154 held-out strings; median 0.00% of real traffic",
+      "intoli user-agents, 49 clean snapshots 2023–2026, weighted by traffic share"
+    ],
+    [
+      "Cloud IPs marked as data center",
+      "97.8% of 14,000 sampled addresses",
+      "ranges published by AWS, Google Cloud, Azure, Oracle, DigitalOcean, Linode, Vultr"
+    ],
+    [
+      "iCloud Private Relay users kept human",
+      "82.1% sit on hosting networks; 0% flagged after the relay exception",
+      "Apple's published egress ranges"
+    ],
+    [
+      "Synthetic logs: bots caught / people marked bot",
+      "100% / 0% (3.7% of people marked suspicious)",
+      "two held-out seeds, 6,442 and 6,429 clicks"
+    ],
+    [
+      "Residential-proxy bots caught",
+      "0%",
+      "expected: a click log cannot see them"
+    ],
+    [
+      "Audit: planted problems found",
+      "35/35, no extra findings, clean campaign silent",
+      "mock Admin API serving a fixture built from the documented fields"
+    ],
+    [
+      "Audit: one-at-a-time fixes",
+      "35/35 remove only their own finding",
+      "each planted problem fixed alone"
+    ],
+    [
+      "Tests catch broken code",
+      "rule ablation 37/37, planted bugs 15/15",
+      "each audit rule switched off; one-line bugs planted in engine, client and redaction"
+    ]
+  ]
+}

@@ -2,5 +2,8 @@
   "name": "keitaro-audit-demo",
   "version": "1.0.0",
   "private": true,
-  "description": "Keitaro audit engine demo — 38 checks, 4 severity tiers, one health score"
+  "description": "Static demo: Keitaro click-log analyzer and sample audit. No build step.",
+  "scripts": {
+    "start": "npx serve ."
+  }
 }
